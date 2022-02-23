@@ -1,16 +1,27 @@
 <template>
-  <v-app
-    ><v-app-bar color="white accent-4" dark app>
+  <v-app>
+    <v-app-bar color="white accent-4" dark app>
       <v-toolbar-title>
         <v-img src="./assets/imanager.png" width="50px" class="mr-3"></v-img>
       </v-toolbar-title>
       <h3 class="font-weight-light black--text">iManager</h3>
-      <v-spacer></v-spacer>
-      <v-btn outlined style="color: #f1333f" to="/">Home</v-btn>
     </v-app-bar>
+
     <v-main style="position: relative">
       <v-container> <router-view :products="products" @deleteProduct="deleteProduct" /></v-container>
     </v-main>
+
+    <v-bottom-navigation class=".align-self-center" grow>
+      <v-btn class="my-auto" :to="'/'">
+        <span>Home</span>
+      </v-btn>
+      <v-btn class="my-auto" :to="'/scan'">
+        <span>Scan</span>
+      </v-btn>
+      <v-btn class="my-auto" :to="'/products'">
+        <span>Inventar</span>
+      </v-btn>
+    </v-bottom-navigation>
   </v-app>
 </template>
 

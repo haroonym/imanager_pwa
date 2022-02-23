@@ -36,10 +36,10 @@
           text-align: center;
           color: #f1333f;
         "
-        class="mt-5 mx-auto text-h4"
+        class="mt-5 mx-auto text-h5"
         outlined
-        height="75px"
-        width="300px"
+        height="50px"
+        width="250px"
         >Speichern</v-btn
       >
     </v-container>
