@@ -1,10 +1,16 @@
 <template>
   <div>
     <v-container>
-      <v-card class="mx-auto" style="background-color: #f1333f" width="350px" height="250px">
-        <v-card-text class="white--text text-h4"> Kamera </v-card-text>
-      </v-card>
-      <v-text-field clearable readonly class="mt-5" color="#F1333F" label="Barcode"></v-text-field>
+      <v-quagga
+        class="mx-auto"
+        style="padding-top: 500px"
+        :onDetected="logIt"
+        :readerSize="readerSize"
+        :readerTypes="['ean_reader']"
+      ></v-quagga>
+      <v-text-field clearable readonly class="mt-5" color="#F1333F" v-model="code" label="Barcode">{{
+        code
+      }}</v-text-field>
       <v-text-field
         class="mt-5"
         color="#F1333F"
@@ -27,25 +33,35 @@
         clearable
         label="Ablaufdatum"
       ></v-text-field>
-      <v-btn
-        style="
-          position: absolute;
-          left: 50%;
-          bottom: 7%;
-          transform: translateX(-50%);
-          text-align: center;
-          color: #f1333f;
-        "
-        class="mt-5 mx-auto text-h5"
-        outlined
-        height="50px"
-        width="250px"
+      <v-btn style="color: #f1333f" class="mt-5 mx-auto text-h5" outlined height="50px" width="250px"
         >Speichern</v-btn
       >
     </v-container>
   </div>
 </template>
+<script>
+export default {
+  name: 'Scan',
+  data() {
+    return {
+      readerSize: {
+        min: 640,
+        max: 480,
+      },
 
+      detecteds: [],
+      code: '',
+      readerTypes: ['code_128_reader', 'ean_reader', 'ean_8_reader', 'code_39_reader'],
+    };
+  },
+  methods: {
+    logIt(data) {
+      this.code = data.codeResult.code;
+      console.log('detected', data);
+    },
+  },
+};
+</script>
 <style lang="scss" scoped>
 .custom-label-color .v-label {
   color: red;
