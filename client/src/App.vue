@@ -8,7 +8,9 @@
     </v-app-bar>
 
     <v-main style="position: relative">
-      <v-container> <router-view :products="products" @deleteProduct="deleteProduct" /></v-container>
+      <v-container>
+        <router-view :products="products" @deleteProduct="deleteProduct" @refreshProducts="getProducts"
+      /></v-container>
     </v-main>
 
     <v-bottom-navigation class=".align-self-center" grow>

@@ -8,5 +8,5 @@ Content-Type: application/json
     "marke": "Mina Mansouri",
     "produktname": "Minergy",
     "beschreibung": "Ein Energiedrink, welches beim Programmieren hilft!",
-    "ablaufdatum": "18.02.2022"
+    "ablaufdatum": "2022-02-18"
 }
