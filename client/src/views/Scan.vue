@@ -8,7 +8,7 @@
         :readerSize="readerSize"
         :readerTypes="['ean_reader']"
       ></v-quagga>
-      <form ref="form">
+      <v-form ref="form" v-model="valid" @submit.prevent="submit">
         <v-text-field
           clearable
           readonly
@@ -18,6 +18,9 @@
           label="Barcode"
           hint="wird automatisch ausgefüllt"
           required
+          :error-messages="barcodeRules"
+          @input="$v.code.$touch()"
+          @blur="$v.code.$touch()"
           >{{ code }}</v-text-field
         >
         <v-text-field
@@ -28,6 +31,9 @@
           label="Marke"
           v-model="marke"
           required
+          :error-messages="markeRules"
+          @input="$v.marke.$touch()"
+          @blur="$v.marke.$touch()"
         ></v-text-field>
         <v-text-field
           class="mt-5"
@@ -37,6 +43,9 @@
           label="Produkttitel"
           v-model="produkttitel"
           required
+          :error-messages="titelRules"
+          @input="$v.produkttitel.$touch()"
+          @blur="$v.produkttitel.$touch()"
         ></v-text-field>
         <v-text-field
           class="mt-5"
@@ -46,6 +55,9 @@
           label="Produktbeschreibung"
           v-model="produktbeschreibung"
           required
+          :error-messages="beschreibungRules"
+          @input="$v.produktbeschreibung.$touch()"
+          @blur="$v.produktbeschreibung.$touch()"
         ></v-text-field>
         <v-text-field
           class="mt-5"
@@ -56,61 +68,143 @@
           label="Ablaufdatum"
           v-model="ablaufdatum"
           required
+          :error-messages="datumRules"
+          @input="$v.ablaufdatum.$touch()"
+          @blur="$v.ablaufdatum.$touch()"
         ></v-text-field>
-      </form>
+      </v-form>
 
       <v-btn
-        @click="postProduct()"
+        @click="
+          postProduct();
+          submit;
+        "
         style="color: #f1333f"
         class="mt-5 mx-auto text-h5"
         outlined
         height="50px"
         width="250px"
+        type="submit"
         >Speichern</v-btn
       >
+      <v-snackbar v-model="snackbar">
+        {{ text }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn color="red" text v-bind="attrs" @click="snackbar = false"> Close </v-btn>
+        </template>
+      </v-snackbar>
     </v-container>
   </div>
 </template>
 <script>
+import { validationMixin } from 'vuelidate';
+import { required } from 'vuelidate/lib/validators';
 import axios from 'axios';
 export default {
   name: 'Scan',
+  props: {
+    products: {
+      type: Array,
+    },
+  },
+
+  mixins: [validationMixin],
+
+  validations: {
+    code: { required },
+    marke: { required },
+    produkttitel: { required },
+    produktbeschreibung: { required },
+    ablaufdatum: { required },
+  },
+
   data() {
     return {
       readerSize: {
         min: 640,
         max: 480,
       },
-      code: '',
+      // code: '',
+      code: '9100000743622',
       marke: 'S Budget',
       produkttitel: 'Schokobutterkekse Zartbitterschokolade',
       produktbeschreibung: 'Kekse mit Zartbitterschokolade',
       ablaufdatum: '2022-11-01',
       detecteds: [],
       readerTypes: ['code_128_reader', 'ean_reader', 'ean_8_reader', 'code_39_reader'],
+
+      snackbar: false,
+      text: '',
+      valid: false,
     };
+  },
+  computed: {
+    barcodeRules() {
+      const errors = [];
+      if (!this.$v.code.$dirty) return errors;
+      !this.$v.code.required && errors.push('Barcode is required');
+      return errors;
+    },
+    titelRules() {
+      const errors = [];
+      if (!this.$v.produkttitel.$dirty) return errors;
+      !this.$v.produkttitel.required && errors.push('Title is required');
+      return errors;
+    },
+    markeRules() {
+      const errors = [];
+      if (!this.$v.marke.$dirty) return errors;
+      !this.$v.marke.required && errors.push('Brand is required');
+      return errors;
+    },
+    beschreibungRules() {
+      const errors = [];
+      if (!this.$v.produktbeschreibung.$dirty) return errors;
+      !this.$v.produktbeschreibung.required && errors.push('Description is required');
+      return errors;
+    },
+    datumRules() {
+      const errors = [];
+      if (!this.$v.ablaufdatum.$dirty) return errors;
+      !this.$v.ablaufdatum.required && errors.push('Date is required');
+      return errors;
+    },
   },
   methods: {
     logIt(data) {
       this.code = data.codeResult.code;
       console.log('detected', data);
     },
+    submit() {
+      this.$v.$touch();
+    },
     async postProduct() {
-      const { data } = await axios({
-        url: 'http://127.0.0.1:3000/products',
-        method: 'POST',
-        contentType: 'application/json',
-        data: {
-          barcode: this.code,
-          marke: this.marke,
-          produktname: this.produkttitel,
-          beschreibung: this.produktbeschreibung,
-          ablaufdatum: this.ablaufdatum,
-        },
-      });
-      this.$emit('refreshProducts');
-      this.$refs.form.reset();
-      console.log(data[0]);
+      if (this.valid == true) {
+        const { data } = await axios({
+          url: 'http://127.0.0.1:3000/products',
+          method: 'POST',
+          contentType: 'application/json',
+          data: {
+            barcode: this.code,
+            marke: this.marke,
+            produktname: this.produkttitel,
+            beschreibung: this.produktbeschreibung,
+            ablaufdatum: this.ablaufdatum,
+          },
+        });
+        console.log(data);
+        if (this.products.filter((el) => el.barcode == this.code)) {
+          this.snackbar = true;
+          this.text = `Das Produkt wurde erfolgreich erstellt`;
+          this.$refs.form.reset();
+          this.$v.$reset();
+          this.code = '';
+        } else {
+          this.snackbar = false;
+        }
+        this.$emit('refreshProducts');
+      }
     },
   },
 };
