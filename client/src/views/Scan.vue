@@ -180,30 +180,34 @@ export default {
       this.$v.$touch();
     },
     async postProduct() {
-      if (this.valid == true) {
-        const { data } = await axios({
-          url: 'http://127.0.0.1:3000/products',
-          method: 'POST',
-          contentType: 'application/json',
-          data: {
-            barcode: this.code,
-            marke: this.marke,
-            produktname: this.produkttitel,
-            beschreibung: this.produktbeschreibung,
-            ablaufdatum: this.ablaufdatum,
-          },
-        });
-        console.log(data);
-        if (this.products.filter((el) => el.barcode == this.code)) {
+      if (this.valid == true && this.code.length > 0) {
+        if (this.products.filter((el) => el.barcode == this.code) == false) {
+          const { data } = await axios({
+            url: 'http://127.0.0.1:3000/products',
+            method: 'POST',
+            contentType: 'application/json',
+            data: {
+              barcode: this.code,
+              marke: this.marke,
+              produktname: this.produkttitel,
+              beschreibung: this.produktbeschreibung,
+              ablaufdatum: this.ablaufdatum,
+            },
+          });
+          console.log(data);
           this.snackbar = true;
-          this.text = `Das Produkt wurde erfolgreich erstellt`;
+          this.text = `Das Produkt mit dem Barcode ${this.code} wurde erfolgreich erstellt`;
           this.$refs.form.reset();
           this.$v.$reset();
           this.code = '';
+          this.$emit('refreshProducts');
         } else {
-          this.snackbar = false;
+          this.snackbar = true;
+          this.text = `Das Produkt mit dem Barcode ${this.code} existiert bereits, bitte versuchen Sie es mit einem anderen Produkt`;
         }
-        this.$emit('refreshProducts');
+      } else {
+        this.snackbar = true;
+        this.text = `Bitte scannen Sie ein Produkt ein oder überprüfen Sie, ob Sie alle Felder ausgefüllt haben!`;
       }
     },
   },

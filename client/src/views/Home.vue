@@ -11,7 +11,7 @@
           <p style="color: #F1333F" class="font-weight-bold text-h3 mt-auto">SCAN</p>
           <v-img class="ml-2" width="0px" src="../assets/scan-svgrepo-com.svg"></v-img>
         </v-btn>
-        <v-btn class="mt-5 mx-auto" outlined style="color: #F1333F" height="125px" width="350px" to="/products">
+        <v-btn class="mt-5 mx-auto" outlined style="color: #F1333F" height="125px" width="350px" to="/inventory">
           <p style="color: #F1333F" class="font-weight-bold text-h3 mt-auto">INVENTAR</p>
           <v-img class="ml-2" width="0px" src="../assets/stock-svgrepo-com.svg"></v-img>
         </v-btn>

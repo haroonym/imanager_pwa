@@ -20,7 +20,7 @@
       <v-btn class="my-auto" :to="'/scan'">
         <span>Scan</span>
       </v-btn>
-      <v-btn class="my-auto" :to="'/products'">
+      <v-btn class="my-auto" :to="'/inventory'">
         <span>Inventar</span>
       </v-btn>
     </v-bottom-navigation>
@@ -30,13 +30,16 @@
 <script>
 import axios from 'axios';
 export default {
-  name: 'App',
   created() {
     document.addEventListener('swUpdated', this.updateAvailable, { once: true });
     this.getProducts();
   },
   data() {
-    return { products: [] };
+    return {
+      products: [],
+      serverAddress: process.env.VUE_APP_SERVER,
+      once: false,
+    };
   },
   methods: {
     updateAvailable() {
@@ -45,7 +48,7 @@ export default {
     async getProducts() {
       try {
         const { data } = await axios({
-          url: 'http://localhost:3000/products',
+          url: this.serverAddress + '/products',
           method: 'GET',
         });
         this.products = data;
@@ -57,7 +60,7 @@ export default {
       try {
         console.log(value);
         await axios({
-          url: `http://127.0.0.1:3000/products/${value}`,
+          url: `${this.serverAddress}/products/${value}`,
           method: 'DELETE',
         });
         // this.products = data;
